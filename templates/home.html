@@ -76,12 +76,12 @@
     contentType: "application/json; charset=utf-8",
     dataType: "json",
     data: JSON.stringify(reqData),
-    url: "/join",
+    url: "https://metatag.herokuapp.com/join",
     success: function(data){
         console.log(data);
     //console.log(data[0]['url']);
     // end of forEach
-    window.location.href = "/user";
+    window.location.href = "https://metatag.herokuapp.com/user";
     }
 
     })
