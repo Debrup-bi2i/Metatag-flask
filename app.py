@@ -22,7 +22,7 @@ from flask import Flask, request, render_template,jsonify,json
 from flask import url_for,session
 from datetime import datetime
 from flask import jsonify,redirect,Response
-from json2html import *
+#from json2html import *
 
 app = Flask(__name__)
 app.secret_key = "super secret key"
