@@ -76,12 +76,12 @@
     contentType: "application/json; charset=utf-8",
     dataType: "json",
     data: JSON.stringify(reqData),
-    url: "http://127.0.0.1:5000/join",
+    url: "/join",
     success: function(data){
         console.log(data);
     //console.log(data[0]['url']);
     // end of forEach
-    window.location.href = "http://127.0.0.1:5000/user";
+    window.location.href = "/user";
     }
 
     })
