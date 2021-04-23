@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Meta-tag Explorer</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='app.css')}}" />
+    </head>
+    <body >
+    <div>
+        <div class="hplogo">
+            <img src="{{url_for('static', filename='hp.jpg')}}"/>
+        </div>
+        <div class="title"> 
+            <label class="meta-tag">Meta-tag Explorer</label>
+        </div>
+        <div class="linebreaks"> </div>
+        <a href="{{url_for('home')}}" class="previous" onclick="Back();"> <img style="width:35px;" src="{{url_for('static', filename='back.png')}}"/></a>
+        <label class="page"> {{ session['page'] }} </label>
+        <label class="validation">/ {{ session['validation'] }} </label>
+        <div class="rectangle">
+         <!--<img src="{{url_for('static', filename='rectangle1.png')}}"/> -->
+        </div>
+        <div class="masterUrl1">
+        <label id="url" class="url">Master Url</label>
+        <label id="urlvalue" class="urlvalue"></label></div>
+        <div class="pageLevel">
+        <label  class="plevel">Page Level</label>
+        <label id="plValue" class="plValue"></label></div>
+        <div class="bu">
+        <label class="buTitle">BU</label>
+        <label id="buValue" class="buValue"></label></div>
+        <div class="webId">
+        <label class="webIdTitle">WebSection Id</label>
+        <label id="webValue" class="webValue"></label></div>
+        <div class="profile">
+        <label class="profileTitle">User Profile</label>
+        <label id="profileValue" class="profileValue"></label></div>
+        <div class="simple">
+        <label class="simpleTitle">Simple Title</label>
+        <label id="simpleValue" class="simpleValue"></label></div>
+        <div class="product">
+        <label class="productTitle">Product Service Name</label>
+        <label id="productValue" class="productValue"></label></div>
+        <div class="pcontent">
+        <label class="contentTitle">Page Content</label>
+        <label id="contentValue" class="contentValue"></label></div>
+        <div class="segment">
+        <label class="segmentTitle">Segment</label>
+        <label id="segmentValue" class="segmentValue"></label></div>
+        <div class="lifecycle">
+        <label class="lifecycleTitle">Lifecycle</label>
+         <label id="lifeValue" class="lifeValue"></label></div>
+        <div class="version">
+        <label class="versionTitle">HP Design Version</label>
+         <label id="versionValue" class="versionValue"></label></div>
+        <div class="desName">
+        <label class="nameTitle">Analytics Design Name</label>
+         <label id="nameValue" class="nameValue"></label></div>
+        <div class="subBu">
+        <label class="subButitle">Sub BU</label>
+         <label id="subBuValue" class="subBuValue"></label></div>
+         <div class="ptype">
+        <label class="prodTitle">Product Type</label>
+        <label id="prodValue" class="prodValue"></label></div>
+        <div class="family">
+        <label class="familyTitle">Family</label>
+        <label id="famValue" class="famValue"></label></div>
+        <div class="analytics">
+        <label class="analyticsTitle">Analytics Section</label>
+        <label id="analyticsValue" class="analyticsValue"></label></div>
+        {% if session['data'] %}
+        <div id="result" class="result">
+         <img src="{{url_for('static', filename='rectangle2.png')}}"/>
+        </div>
+       
+        <div class="resultTitle"> 
+        <lablel class="resultName">Result</label>
+        </div>
+        <div class="green"> 
+        <lablel class="alligned">Completely Alligned</label>
+        </div>
+        <div class="red"> 
+        <lablel class="notAlligned">Not alligned</label>
+        </div>
+        <div class="download"> 
+       <img id="downloadImage" src="{{url_for('static', filename='download.png')}}"/>
+        </div>
+        <div class ="urlIcon1">
+        <img id="urlImage1" style="width:22px;" src="{{url_for('static', filename='allign.PNG')}}"/>
+        <label id="totalCount1">
+        </label>
+        </div>
+        <div class ="urlIcon">
+        <img id="urlImage" src="{{url_for('static', filename='urlIcon.png')}}"/>
+        <label id="totalCount">
+        </label>
+        <div class ="urlIcon">
+        <img id="urlImage2" src="{{url_for('static', filename='error.png')}}"/>
+        <label id="totalCount2">
+        </label>
+        <div id="resultTable" style="position: absolute;height: 325px;width: 1135px;overflow: auto;
+    margin-left: -350px;
+    top: -350px;">
+        </div>
+        </div>
+        
+        
+         {% endif %}
+     </div>
+     <div id="content" class="container"></div>
+     <script>
+     function Back(){
+         
+     }
+    window.onload = function() {
+      
+      const jsonfile = JSON.parse({{jsonfile|tojson}});
+     // const jsonnew= JSON.stringify(jsonfile);
+      //console.log(jsonnew['output2']);
+      
+      const jsonString = jsonfile['output2'];
+      const jsonString1 = jsonfile['output'];
+      const jsonUrls= JSON.parse(jsonString);
+      const jsonUrls1= JSON.parse(jsonString1);
+      console.log(jsonUrls);
+      console.log(jsonUrls1);
+      console.log(jsonUrls1[1]['master_url']);
+      //console.log(typeof(jsonUrls1));
+      //console.log(jsonfile.output2["url"]);
+      var count=Object.keys(jsonUrls).length;
+      //console.log(count);
+    
+      //document.body.innerHTML = jsonfile[0]['url'];
+     
+      var col = [];
+        for (var i = 0; i < Object.keys(jsonUrls).length; i++) {
+            for (var key in jsonUrls[i]) {
+                if (col.indexOf(key) === -1) {
+                    col.push(key);
+                }
+                
+            }
+        }
+
+        // Create a table.
+        var table = document.createElement("table");
+        table.className = "myTable";
+        // Create table header row using the extracted headers above.
+        var tr = table.insertRow(-1);                   // table row.
+
+        for (var i = 0; i < col.length; i++) {
+            var th = document.createElement("th"); 
+            th.className="tableHeader";     // table header.
+            th.innerHTML = col[i];
+            tr.appendChild(th);
+        }
+
+        // add json data to the table as rows.
+        countf =0;
+        alligned =0;
+        //console.log(jsonUrls[14][col[4]],jsonUrls[14][col[4-1]]);
+        for (var i = 0; i < Object.keys(jsonUrls).length; i++) {
+
+            tr = table.insertRow(-1);
+            
+            for (var j = 0; j < col.length; j++) {
+                var tabCell = tr.insertCell(-1);
+                
+                countf= countf+1;
+                if(j==3){
+                    //console.log(jsonUrls[i][col[4]],jsonUrls[i][col[4-1]]);
+                    if(jsonUrls[i][col[3]] == 1 && jsonUrls[i][col[3-1]] == 1){
+                        tr.className = "cellRow";
+                        alligned= alligned+1;
+                    }
+                   
+                }
+                if( j > 3){
+                
+                if(j==4 && jsonUrls[i][col[j]]!=jsonUrls1[1]['bu']){
+                    tabCell.className ="cellError";
+                    tabCell.innerHTML = "<span class='color1-red'>"+jsonUrls[i][col[j]];+"</span>";
+                }
+            
+                else if(j==5 && jsonUrls[i][col[j]]!=jsonUrls1[1]['web_section_id']){
+                    tabCell.className ="cellError";
+                    tabCell.innerHTML = jsonUrls[i][col[j]];
+                    
+                }
+                else if(j==6 && jsonUrls[i][col[j]]!=jsonUrls1[1]['page_content']){
+                    tabCell.className ="cellError";
+                    tabCell.innerHTML = jsonUrls[i][col[j]];
+                    
+                }
+                else if(j==7 && jsonUrls[i][col[j]]!=jsonUrls1[1]['segment']){
+                    tabCell.className ="cellError";
+                    tabCell.innerHTML = jsonUrls[i][col[j]];
+                    
+                }
+                else if(j==8 && jsonUrls[i][col[j]]!=jsonUrls1[1]['lifecycle']){
+                    tabCell.className ="cellError";
+                    tabCell.innerHTML = jsonUrls[i][col[j]];
+                    
+                }
+                else if(j==9 && jsonUrls[i][col[j]]!=jsonUrls1[1]['user_profile']){
+                    tabCell.className ="cellError";
+                    tabCell.innerHTML = jsonUrls[i][col[j]];
+                    
+                }
+                 else if(j==10 && jsonUrls[i][col[j]]!=jsonUrls1[1]['simple_title']){
+                    tabCell.className ="cellError";
+                    tabCell.innerHTML = jsonUrls[i][col[j]];
+                    
+                }
+                else if(j==11 && jsonUrls[i][col[j]]!=jsonUrls1[1]['hp_design_version']){
+                    tabCell.className ="cellError";
+                    tabCell.innerHTML = jsonUrls[i][col[j]];
+                    
+                }
+                 else if(j==12 && jsonUrls[i][col[j]]!=jsonUrls1[1]['page_level']){
+                    tabCell.className ="cellError";
+                    tabCell.innerHTML = jsonUrls[i][col[j]];
+                    
+                }
+                 else if(j==13 && jsonUrls[i][col[j]]!=jsonUrls1[1]['product_type']){
+                    tabCell.className ="cellError";
+                    tabCell.innerHTML = jsonUrls[i][col[j]];
+                    
+                }
+                 else if(j==14 && jsonUrls[i][col[j]]!=jsonUrls1[1]['family']){
+                    tabCell.className ="cellError";
+                    tabCell.innerHTML = jsonUrls[i][col[j]];
+                    
+                }
+                else if(j==15 && jsonUrls[i][col[j]]!=""){
+                    tabCell.className ="cellError";
+                    tabCell.innerHTML = jsonUrls[i][col[j]];
+                    
+                }
+                else if(j==16 && jsonUrls[i][col[j]]!=""){
+                    tabCell.className ="cellError";
+                    tabCell.innerHTML = jsonUrls[i][col[j]];
+                    
+                }
+                else if(j==17 && jsonUrls[i][col[j]]!=""){
+                    tabCell.className ="cellError";
+                    tabCell.innerHTML = jsonUrls[i][col[j]];
+                    
+                }
+                else if(j==18 && jsonUrls[i][col[j]]!=""){
+                    tabCell.className ="cellError";
+                    tabCell.innerHTML = jsonUrls[i][col[j]];
+                    
+                }
+                else{
+                    tabCell.className ="color-green";
+                    tabCell.innerHTML ="<span>"+ jsonUrls[i][col[j]];+"</span>"
+                }
+                }
+                else{
+                    //tabCell.className ="cellError";
+                    tabCell.innerHTML = "<span class='color1-red'>"+jsonUrls[i][col[j]];+"</span>";
+                    
+                }
+                
+                
+            }
+            countf =0;
+        }
+
+        // Now, add the newly created table with json data, to a container.
+        var divShowData = document.getElementById('resultTable');
+        divShowData.innerHTML = "";
+        divShowData.appendChild(table);
+        notAlligned =0;
+        notAlligned = count-alligned;
+        console.log(count);
+        console.log(alligned);
+          document.getElementById('totalCount').innerHTML = count+" Urls";
+          document.getElementById('totalCount1').innerHTML = alligned+" Urls";
+           document.getElementById('totalCount2').innerHTML = notAlligned+" Urls";
+      document.getElementById('urlvalue').innerHTML = jsonUrls1[1]['master_url'];
+      document.getElementById('buValue').innerHTML = jsonUrls1[1]['bu'];
+      document.getElementById('webValue').innerHTML = jsonUrls1[1]['web_section_id'];
+      document.getElementById('profileValue').innerHTML = jsonUrls1[1]['user_profile'];
+      document.getElementById('simpleValue').innerHTML = jsonUrls1[1]['simple_title'];
+     document.getElementById('segmentValue').innerHTML = jsonUrls1[1]['simple_title'];
+      document.getElementById('contentValue').innerHTML = jsonUrls1[1]['page_content'];
+       document.getElementById('segmentValue').innerHTML = jsonUrls1[1]['segment'];
+        document.getElementById('lifeValue').innerHTML = jsonUrls1[1]['lifecycle'];
+         document.getElementById('versionValue').innerHTML = jsonUrls1[1]['hp_design_version'];
+    document.getElementById('nameValue').innerHTML = jsonUrls1[1]['analytics_template_name'];
+    document.getElementById('subBuValue').innerHTML = jsonUrls1[1]['sub_bu'];
+    document.getElementById('prodValue').innerHTML = jsonUrls1[1]['product_type'];
+    document.getElementById('famValue').innerHTML = jsonUrls1[1]['family'];
+    document.getElementById('analyticsValue').innerHTML = jsonUrls1[1]['analytics_section'];
+    console.log(jsonUrls1[1]['product_service_name']);
+     //document.getElementById('productValue').innerHTML= jsonUrls1[1]['product_service_name'];
+      document.getElementById('plValue').innerHTML = jsonUrls1[1]['page_level'];
+     if(jsonUrls1[1]['product_service_name']===""){
+      document.getElementById('productValue').innerHTML = "-";
+     }
+      if(jsonUrls1[1]['analytics_section'] === "" ){
+     document.getElementById('analyticsValue').innerHTML="-";
+      }
+    if(jsonUrls1[1]['analytics_template_name'] === "" ){
+     document.getElementById('nameValue').innerHTML="-";
+      }
+      if(jsonUrls1[1]['sub_bu'] === "" ){
+     document.getElementById('subBuValue').innerHTML="-";
+      }
+     // else{
+     //document.getElementById('plValue').innerHTML = jsonUrls1[1]['page_level'];
+     // }
+     
+        $('#resultTable').scroll(function(){
+        var a = $("#resultTable").scrollTop();
+        $(".resultTable").scrollTop(a);
+    });
+
+     } 
+
+   
+
+
+
+
+    </script>
+   
+    
+    </body>
+<html>

@@ -1,39 +1,192 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>First Flask App</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-</head>
-<script>
-function myFunction() {
-var text1= $('#text1').val();
-var text2= $('#text2').val();
-  $.ajax({
-              url: "/join",
-              type: "POST",
-              data: {text1:text1,
-              text2:text2}
-          }).done(function(response) {
-            var html= "<br><br><br><p> <b> RESULT : <b><p>";
-            response =response.result;
-                 $.each(response,function(key,val){
-                 console.log(val);
-                    html+="<p>"+val+"<p>"
-                });
-                html +="<br>";
-                $(".show-data").append(html);
-            });
-};
-  </script>
-<body>
-    <p>
-        Taking input from web<br><br>
-            Text_Value1<input type="text" id="text1" name="text1"><br><br>
-            Text_Value2<input type="text" id="text2" name="text2"><br><br>
-            <button id="clicked" onclick="myFunction()">Submit</button>
-        </p>
-    <div class="show-data" >
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Meta-tag Explorer</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='app.css')}}" />
+    </head>
+    <body>
+    <div>
+        <div class="hplogo">
+            <img src="{{url_for('static', filename='hp.jpg')}}"/>
+        </div>
+        <div class="title"> 
+            <label class="meta-tag">Meta-tag Explorer</label>
+        </div>
+        
+    <ul>
+    <div class="strContainer">
+    
+    <li class="menu--item__one"id="toggle" >
+    <button type="button" class="pageButton"  onclick='store("store")' >
+        <a  class="link"  >Store </a>
+        </button>
+    </li>
+    </button>
+    <li class="menu--item__two">
+    <button type="button" class="pageButton"  onclick='store("marketing")' >
+        <a id="toggle1" class="link1" value="Marketing">Marketing</a>
+     </button>
+    </li> 
+    <li class="bottom__line">
+
+  </li>
+  </div>
+    </ul>
+        
+        <div class="linebreaks"> </div>
+        <div class="toggle">
+            <div id="myBtnContainer">
+            <button class="btn active" value="local validation" onclick="filterSelection('localValidation')"> Local Validation</button>
+            <button class="btn" value="folder validation" onclick="filterSelection('folderValidation')">Folder Validation</button>
+        </div>
+      </div>
+     
+        <div class="masterUrlInput"> 
+        <input type="search" id="masterUrl" name="masterUrl" placeholder="Master Url"/>
+        
+        
+        <button type="button" onclick="clearValue()" class="image" id="btnClear" style="background: white;" > <img src="{{url_for('static', filename='close.png')}}"/></button>
+        <button type="submit" id="search" onclick=fetch(document.getElementById('masterUrl').value) Value="Go"  >Go</button>
+        </div>
+       
+    <div  id ="progress" class="meter_animate" >
+    <img id="progressBar" src="{{url_for('static', filename='progress.gif')}}"/>
     </div>
-</body>
+    
+    </div>
+    <script>
+    var page ="store";
+    var count=1;
+   function fetch(a) {    
+   var id = document.getElementsByClassName("btn active")[0].value;
+  
+   console.log(page);
+   var reqData = {'url':a,'val':id,'page':page};
+  
+      $.ajax({
+    
+    type:"POST",
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    data: JSON.stringify(reqData),
+    url: "http://127.0.0.1:5000/join",
+    success: function(data){
+        console.log(data);
+    //console.log(data[0]['url']);
+    // end of forEach
+    window.location.href = "http://127.0.0.1:5000/user";
+    }
+
+    })
+
+    }
+   
+     
+    
+
+    function clearValue(){
+        
+     document.getElementById("masterUrl").value = "";
+    
+}
+function store(pagevalue){
+
+        window.page = pagevalue;
+    //document.getElementById("toggle").value = result;
+}
+   
+    $(document).ready(function(){
+    $('#search').attr('disabled',true);
+    
+    $('#masterUrl').keyup(function(){
+        if($(this).val().length !=0){
+            $('#search').attr('disabled', false);
+        }
+        else
+        {
+            $('#search').attr('disabled', true);        
+        }
+    })
+   
+});
+
+    var btnContainer = document.getElementById("myBtnContainer");
+var btns = btnContainer.getElementsByClassName("btn");
+for (var i = 0; i < btns.length; i++) {
+  btns[i].addEventListener("click", function(){
+    var current = document.getElementsByClassName("active");
+    current[0].className = current[0].className.replace(" active", "");
+    this.className += " active";
+     console.log(this.className);
+  });
+ 
+}
+
+
+    
+
+
+$(document).ready(function() {
+  $("#search").click(function() {
+	$(this).text( ($(this).text() == 'Go' ? 'Stop' : 'Go') )
+    if($(this).text() == 'Stop'){
+     $(this).css('background-color', 'white');
+     $(this).css('color', 'red');
+     $(this).css("border-color", 'red');
+     document.getElementById("progress").style.display="block";
+    }
+    else{
+        
+        $(this).css('background-color', 'dodgerblue');
+     $(this).css('color', 'black');
+     $(this).css("border-color", 'black');
+     document.getElementById("progress").style.display="none";
+    
+    window.location.reload();
+     request.abort();
+    }
+	})
+})
+
+
+$(document).ready(function(){
+var option="stroree";
+  $(".link").addClass("color");
+//   First active item
+
+  $(".menu--item__one").click(function(){
+     $(".bottom__line").addClass("bottom__active");
+     $(".link").addClass("color");
+     $(".link1").removeClass("color1");
+     $(".link2").removeClass("color2");
+     $(".bottom__line").removeClass("bottom__active1 bottom__active2");
+    option="store";
+  });
+  
+  //  Second active item
+  $(".menu--item__two").click(function(){
+      $(".bottom__line").addClass("bottom__active1");
+      $(".link1").addClass("color1");
+      $(".link").removeClass("color");
+      $(".link2").removeClass("color2");
+      $(".bottom__line").removeClass("bottom__active bottom__active2");
+    option = "Marketing";
+  });
+
+ console.log(option);
+
+
+ 
+});
+
+
+</script>
+    </body>
 </html>
