@@ -658,6 +658,7 @@ def home():
 def my_form_post():
     # text1 = request.form['url']
     # word = request.args.get('url')
+    response.headers.add('Access-Control-Allow-Origin', '*')
     session['url'] = request.json['url']
     session['validation'] =request.json['val']
     session['page']=request.json['page']
