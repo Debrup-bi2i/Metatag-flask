@@ -635,6 +635,8 @@ def do_something(text1):
                 
             df['Primary_Flag']=df.primary_flag
             df['Secondary_Flag']=df.secondary_flag
+            top_row = df.loc[df['url'] == url]
+            df = pd.concat([top_row, df]).reset_index(drop = True)
             try:
                     if 'hpweb.1' in dict_metatag['hp_design_version']:
                         df=df[col_order]
