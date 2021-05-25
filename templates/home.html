@@ -3,12 +3,13 @@
     <head>
         <meta charset="utf-8" />
         <title>Meta-tag Explorer</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
   <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
-<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='app.css')}}" />
     </head>
     <body>
@@ -41,10 +42,78 @@
     </ul>
         
         <div class="linebreaks"> </div>
+        <div class="row" >
+
+            <div class="container">
+          
+          <div class="row" style="float: right;">
+              <div class="col-12">
+                  <h2 class="mt-3">
+                  
+                <span  
+                        class="editable"
+                        data-toggle="popover"
+                        data-container="body"
+                        data-placement="left"
+                        data-title="Filter By"
+                        data-content="<div class='row' style='
+          background: #F6FBFD;
+          opacity: 0.6;
+          box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.25);margin-top: -8px;
+      '> <ul>
+          <li class='tit'>General</li>
+           <li class='tit'>Info</li>
+           <li class='tit'>Product Detail</li>
+           <li class='tit'>Family Info</li>
+           
+          
+          </ul>
+          </div>
+          <form>
+        <div class='form-group'>
+        <ul class='checkbox-grid'>
+       <div class='column1'>
+        <li><input type='checkbox' id='checkbox1' name='text' value='4'  /><label class='filter-label' for='text1'>BU &nbsp; </label></li>
+       
+      
+        <li><input type='checkbox' id='checkbox2' name='text' value='15' /><label  class='filter-label' for='text2'>Sub_bu</label></li>
+        <li><input type='checkbox' id='checkbox3' name='text' value='5' /><label  class='filter-label' for='text3'>web_section_id</label></li>
+        <li><input type='checkbox' id='checkbox4' name='text' value='6' /><label  class='filter-label' for='text4'>page_content</label></li>
+        </div>
+      <div class='column2'>
+        <li><input type='checkbox' id='checkbox5' name='text' value='7' /><label  class='filter-label' for='text5'>Segment</label></li>
+       
+        <li><input type='checkbox' id='checkbox6' name='text' value='8' /><label  class='filter-label' for='text6'>Lifecycle</label></li>
+        <li><input type='checkbox' id='checkbox7' name='text' value='9' /><label  class='filter-label' for='text7'>user_profile</label></li>
+        <li><input type='checkbox' id='checkbox8' name='text' value='10' /><label  class='filter-label' for='text8'>simple_title</label></li>
+      </div>
+      <div class='column3'>
+         <li><input type='checkbox' id='checkbox9' name='text' value='16'  /><label  class='filter-label' for='text1'>analytics_template_name</label></li>
+        <li><input type='checkbox' id='checkbox10' name='text' value='17' /><label  class='filter-label' for='text2'>product_service_name</label></li>
+        
+        <li><input type='checkbox' id='checkbox11' name='text' value='18' /><label  class='filter-label' for='text3'>analytics_section</label></li>
+      </div>
+      <div class='column4'>
+        <li><input type='checkbox' id='checkbox12' name='text' value='11' /><label  class='filter-label' for='text4'>hp_design_version</label></li>
+        <li><input type='checkbox' id='checkbox13' name='text' value='12' /><label  class='filter-label' for='text5'>page_level</label></li>
+        <li><input type='checkbox' id='checkbox14' name='text' value='13' /><label  class='filter-label' for='text6'>product_type</label></li>
+        <li><input type='checkbox' id='checkbox15' name='text' value='14' /><label   class='filter-label' for='text7'>Family</label></li>
+        </div>
+      </ul>
+        <button type='button' class='btn-reset' onclick='reset_filter();' >Reset Filters</button>
+        <button type='button' onclick='show_hide_column_first();' class='btn-filter'>Apply Filters</button>
+      </form>">
+                 <img onclick='state();' src="{{url_for('static', filename='Filter.png')}}"  style="margin-top: 70px;"/>
+                </span>
+                  </h2>
+              </div>
+          </div>
+      </div>
+              </div>
         <div class="toggle">
             <div id="myBtnContainer">
             <button class="btn active" value="local validation" onclick="filterSelection('localValidation')"> Local Validation</button>
-            <button class="btn" value="folder validation" onclick="filterSelection('folderValidation')">Folder Validation</button>
+            <button class="btn" value="folder validation" onclick="filterSelection('folderValidation')">Folder Extraction</button>
         </div>
       </div>
      
@@ -53,40 +122,149 @@
         
         
         <button type="button" onclick="clearValue()" class="image" id="btnClear" style="background: white;" > <img src="{{url_for('static', filename='close.png')}}"/></button>
-        <button type="submit" id="search" onclick=fetch(document.getElementById('masterUrl').value) Value="Go"  >Go</button>
+        <button type="submit" id="search" Value="Go"  >Go</button>
         </div>
-       
+        <div id="progress"></div>
     <div  id ="progress" class="meter_animate" >
     <img id="progressBar" src="{{url_for('static', filename='progress.gif')}}"/>
     </div>
     
     </div>
     <script>
+     var filterlist1=["4","5","6","7","8","9","10","11","12","13","14","15","16","17","18"];
+     function state(){
+         
+         $("[data-toggle='popover']").on('shown.bs.popover', function(){
+  
+            console.log(filterlist1.length);
+            if(filterlist1.length == 15){
+                for (let i = 1; i <=  15; i++) {
+ 	               $( "#checkbox"+i).prop('checked', true);
+            }
+            
+            }
+            else{
+                 $.each(filterlist1, function(i, val){
+
+                        $("input[value='" + val + "']").prop('checked', true);
+                        });
+
+            }   
+     
+  });
+    }
+           
+    function show_hide_column_first()
+    {
+      $('.editable').popover('hide');
+      filterlist1 = [];
+      $.each($("input[name='text']:checked"), function()
+        {  
+             if(filterlist1.includes($(this).val()) !== true){
+                filterlist1.push($(this).val());
+            }
+
+        });
+        console.log(filterlist1);
+
+    }
+    function reset_filter()
+        {
+            
+            $('input:checkbox:checked').prop('checked', false);
+            filterlist = [];
+            idList =[];
+       }
     var page ="store";
     var count=1;
-   function fetch(a) {    
-   var id = document.getElementsByClassName("btn active")[0].value;
+
+    function start_long_task() {
+            // add task status elements
+            div = $('<div class="progress"><div></div><div>0%</div><div>...</div><div>&nbsp;</div></div><hr>');
+            $('#progress').append(div);
+
+            // create a progress bar
+            var nanobar = new Nanobar({
+                bg: '#44f',
+                target: div[0].childNodes[0]
+            });
+
+            // send ajax POST request to start background job
+            var str=$("#masterUrl").val();
+         //   var pattern= str.search(/^(https://)[a-zA-Z0-9]+\.[hp]+\.com/[a-z]+\-[a-z]+/;
+//pattern1=r"^https://[a-zA-Z0-9]+\.[hp]+\.com/[a-z]+\/[a-z]+/
+//pattern2=r"^https://[a-zA-Z0-9]+\.[omen]+\.com/[a-z]+\/[a-z]+"
+            var filterstring = filterlist1.toString();
+            var  validation = document.getElementsByClassName("btn active")[0].value;
+            $.ajax({
+                type: 'POST',
+                url: '/longtask',
+                data: {'url': str,'idList1':filterstring,'validation':validation,'page':page},
+                success: function(data, status, request) {
+                    status_url = request.getResponseHeader('Location');
+                    update_progress(status_url, nanobar, div[0]);
+                },
+                error: function() {
+                    alert('Unexpected error');
+                }
+            });
+        }
+        function update_progress(status_url, nanobar, status_div) {
+            // send GET request to status URL
+            $.getJSON(status_url, function(data) {
+                // update UI
+                percent = parseInt(data['current'] * 100 / data['total']);
+                console.log(data['current'],data['total']);
+                nanobar.go(percent);
+                $(status_div.childNodes[1]).text(percent + '%');
+                $(status_div.childNodes[2]).text(data['status']);
+                console.log(data);
+                if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
+                    if ('result' in data) {
+                        // show result
+                        $(status_div.childNodes[3]).text('Result: ' + data['result'] + data['url']);
+                        window.location.href = window.location.href+"/user?id="+data['result'];
+                    }
+                    else {
+                        // something unexpected happened
+                        $(status_div.childNodes[3]).text('Result: ' + data['state']);
+                    }
+                }
+                else {
+                    // rerun in 2 seconds
+                    setTimeout(function() {
+                        update_progress(status_url, nanobar, status_div);
+                    }, 2000);
+                }
+            });
+        }
+        $(function() {
+            console.log("button");
+            $('#search').click(start_long_task);
+        });
+//    function fetch(a) {    
+//    var id = document.getElementsByClassName("btn active")[0].value;
   
-   console.log(page);
-   var reqData = {'url':a,'val':id,'page':page};
+//    console.log(page);
+//    var reqData = {'url':a,'val':id,'page':page};
   
-      $.ajax({
+//       $.ajax({
     
-    type:"POST",
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    data: JSON.stringify(reqData),
-    url: "https://metatag.herokuapp.com/join",
-    success: function(data){
-        console.log(data);
-    //console.log(data[0]['url']);
-    // end of forEach
-    window.location.href = "https://metatag.herokuapp.com/user";
-    }
+//     type:"POST",
+//     contentType: "application/json; charset=utf-8",
+//     dataType: "json",
+//     data: JSON.stringify(reqData),
+//     url: window.location.href+"/join",
+//     success: function(data){
+//         console.log(data);
+//     //console.log(data[0]['url']);
+//     // end of forEach
+//     window.location.href = window.location.href+"/user";
+//     }
 
-    })
+//     })
 
-    }
+//     }
    
      
     
@@ -186,7 +364,15 @@ var option="stroree";
  
 });
 
+window.onload = function() {
 
+$("h2 > .editable").popover({
+   html: true,
+   sanitize: true
+   
+});
+console.log(filterlist1);
+}
 </script>
     </body>
 </html>
