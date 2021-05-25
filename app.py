@@ -1,12 +1,14 @@
-
-"""
-Created on Wed Apr 14 11:10:21 2021
-@author: DuttDebr
-"""
-#import streamlit as st
+import os
+import random
+import time
+from flask import Flask, json, request, render_template, session, flash, redirect, \
+    url_for, jsonify
+from flask_mail import Mail, Message
+from celery import Celery
 import numpy as np
 import pandas as pd
 import time
+from pandas.core.frame import DataFrame
 import requests
 from requests.exceptions import ConnectionError
 from urllib.parse import urlparse, urljoin
@@ -17,16 +19,11 @@ import base64
 import re
 import os
 import time
+#from flask.ext.mysql import MySQL
 import pandas as pd
-from flask import Flask, request, render_template,jsonify,json
-from flask import url_for,session
-from datetime import datetime
-from flask import jsonify,redirect,Response
-#from json2html import *
 
-app = Flask(__name__)
-app.secret_key = "super secret key"
-app.debug = True
+
+
 list_comb=['ar/es',
  'bo/es',
  'br/pt',
@@ -106,9 +103,6 @@ list_comb=['ar/es',
  'jp/ja',
  'si/si',
  'rs/rs']
-
-
-
 class my_dictionary(dict): 
  
     def __init__(self): 
@@ -117,7 +111,6 @@ class my_dictionary(dict):
     def add(self, key, value): 
         self[key] = value 
 dict_metatag=my_dictionary()
-
 def path_extrt(url):
     fr=""
     sc=""
@@ -144,62 +137,6 @@ def path_extrt(url):
     fl_nm=fl_nm.replace("/","_").replace('.',"").replace(':',"")
        
     return fr,sc,fl_nm
-
-    
-metatag_ref = pd.DataFrame(
-        columns=(
-            "master_url",
-            "bu",
-            "web_section_id",
-            "page_content",
-            "segment",
-            "lifecycle",
-            "user_profile",
-            "simple_title",
-            "sub_bu",
-            "analytics_template_name",
-            "product_service_name",
-            "analytics_section",
-            "hp_design_version",
-            "page_level",
-            "product_type",
-            "family"
-            )
-            )
-
-columns=[   "master_url",
-                            "bu",
-                            "web_section_id",
-                            "page_content",
-                            "segment",
-                            "lifecycle",
-                            "user_profile",
-                            "hp_design_version",
-                            "simple_title",
-                            "analytics_template_name",
-                            "product_service_name",
-                            "analytics_section",
-                            "sub_bu",
-                            ]
-columns1=[   "master_url",
-                            "bu",
-                            "web_section_id",
-                            "page_content",
-                            "segment",
-                            "lifecycle",
-                            "user_profile",
-                            "hp_design_version",
-                            "simple_title",
-                            "page_level",
-                            "product_type",
-                            "family",
-                            "analytics_template_name",
-                            "product_service_name",
-                            "analytics_section",
-                            "sub_bu",
-                            ]
-
-
 def tag_extractor(comb,url):
     """
     
@@ -464,55 +401,115 @@ def tag_extractor_wrap(cc_ll,master_url):
         print(cc_ll)
         pass
 df = pd.DataFrame()
-col_order=["url",
-"redirect",
-"redirected_url",
-"Primary_Flag",
-"Secondary_Flag",
-"bu",
-"web_section_id",
-"page_content",
-"segment",
-"lifecycle",
-"user_profile",
-"simple_title",
-"hp_design_version",
-"sub_bu",
-"analytics_template_name",
-"product_service_name",
-"analytics_section"
+
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'top-secret!'
+
+ 
+from flask_mysqldb import MySQL
+#import MySQLdb.cursors
+#import re
+  
+from flask_sqlalchemy import SQLAlchemy
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://metatag:bi2i@1234@localhost/metatag' 
+db = SQLAlchemy(app) 
+class metatag(db.Model): 
+    id = db.Column(db.Integer, primary_key=True) 
+    result = db.Column(db.Text) 
+    ref = db.Column(db.Text)
+    col_list = db.Column(db.Text)
+    validation = db.Column(db.Text)
+    page = db.Column(db.Text)
+
+  
+
+  
+  
+# app.config['MYSQL_HOST'] = 'localhost'
+# app.config['MYSQL_USER'] = 'root'
+# app.config['MYSQL_PASSWORD'] = 'password'
+# app.config['MYSQL_DB'] = 'metatag'
+  
+  
+# mysql = MySQL(app)
+
+
+# Flask-Mail configuration
+app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = 'flask@example.com'
+
+# Celery configuration
+app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+
+
+# Initialize extensions
+mail = Mail(app)
+
+# Initialize Celery
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
+
+
+@celery.task
+def send_async_email(email_data):
+    """Background task to send an email with Flask-Mail."""
+    msg = Message(email_data['subject'],
+                  sender=app.config['MAIL_DEFAULT_SENDER'],
+                  recipients=[email_data['to']])
+    msg.body = email_data['body']
+    with app.app_context():
+        mail.send(msg)
+col_list=["url",
+    "flag",
+    "redirect",
+    "bu",
+    "web_section_id",
+    "page_content",
+    "segment",
+    "lifecycle",
+    "user_profile",
+    "simple_title",
+    "hp_design_version",
+    "page_level",
+    "product_type",
+    "family",
+    "sub_bu",
+    "analytics_template_name",
+    "product_service_name",
+    "analytics_section"
 ]
-col_order_1=["url",
-"redirect", 
-"redirected_url",            
-"Primary_Flag",
-"Secondary_Flag",
-"bu",
-"web_section_id",
-"page_content",
-"segment",
-"lifecycle",
-"user_profile",
-"simple_title",
-"hp_design_version",
-"page_level",
-"product_type",
-"family",
-"sub_bu",
-"analytics_template_name",
-"product_service_name",
-"analytics_section"]
-text1=""
-def do_something(text1):
-   url = text1
-   token=str(random.randint(0,1000))
-   headers = { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
+metatag_list=["bu",
+            "sub_bu",
+            "web_section_id",
+            "page_content",
+            "segment",
+            "lifecycle",
+            "user_profile"]
+
+
+@celery.task(bind=True)
+def long_task(self,url,col_list_filter,validation,page):
+    #with app.app_context():
+
+
+    #col_list='1,2,3,4,5,6,7,8,9,10'
+    #response_list= request.json['idList1']
+    col_list_filter = ' '.join([str(elem) for elem in col_list_filter])
+    token=str(random.randint(0,1000))
+    headers = { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
 
                     'cache-control': "no-cache",
                     'postman-token': token
                     }
-   r1=requests.get(url,headers=headers,timeout=30)
-   if r1.status_code==200:
+    r1=requests.get(url,headers=headers,timeout=30)
+    if r1.status_code==200:
         htmlcontent = r1.content
     ##print(htmlcontent)
         soup = BeautifulSoup(htmlcontent, "html.parser")
@@ -566,26 +563,17 @@ def do_something(text1):
                             metatag_ref.loc[1, col]=dict_metatag[col]
                         except:
                             metatag_ref.loc[1, col]=""
-        #             try:
-        #                 if 'hpweb.2' in dict_metatag['hp_design_version']:
-        #                     metatag_ref=metatag_ref.to_json()
-        #                     return metatag_ref
-        #                 else:
-        #                     metatag_ref=metatag_ref[columns]
-        #                     metatag_ref=metatag_ref[columns1].to_json()
-        #                     return(metatag_ref)
-        #             except:
-        #                 metatag_ref=metatag_ref[columns].to_json()
-        #                 return(metatag_ref)
-        metatag_ref=metatag_ref.to_json(orient='index')  
-        global res
-        df = pd.DataFrame(
+    
+    """Background task that runs a long function with progress reports."""
+    verb = ['Starting up', 'Booting', 'Repairing', 'Loading', 'Checking']
+    adjective = ['master', 'radiant', 'silent', 'harmonic', 'fast']
+    noun = ['solar array', 'particle reshaper', 'cosmic ray', 'orbiter', 'bit']
+    message = ''
+    global res
+    df = pd.DataFrame(
        columns=(
            "url",
-           "primary_flag",
-           "secondary_flag",
            "redirect",
-           "status",
            "bu",
            "web_section_id",
            "page_content",
@@ -593,92 +581,158 @@ def do_something(text1):
            "lifecycle",
            "user_profile",
            "simple_title",
+           "page_level",
+           "product_type",
+           "family"
            "sub_bu",
            "analytics_template_name",
            "product_service_name",
-           "analytics_section",
-           "Primary_Flag",
-           "Secondary_Flag",
+           "analytics_section"
+        
            )
-           ) 
-        #fr, sc=path_extrt(url)[0],path_extrt(url)[1]
-        try:
-            print('start',url)
-            args = ((b, url) for b in list_comb)
-            with ThreadPoolExecutor(max_workers=20) as T:
-                res = list(T.map(lambda p:tag_extractor_wrap(*p),args))
-                for row in res:
-                   df = df.append(row)
-            # for i in list_comb[0:5]:
-            #     res=tag_extractor_wrap(i, url)
-            #     print('final df',res)
-            #     df=df.append(res)
-            #print(df)
-            #df=df.to_json()
-            print('end',df)
-            df['index'] = list(range(len(df.index)))
-            df=df.set_index('index')
-            for i in range(len(df.index)):
+           )
+    #total = random.randint(10, 50)
+    
+    total=4
+    url = url
+    for i in range(total):
+        l1=i*20
+        l2=(i+1)*20
+        args = ((b, url) for b in list_comb[l1:l2])
+        with ThreadPoolExecutor(max_workers=20) as T:
+            res = list(T.map(lambda p:tag_extractor_wrap(*p),args))
+            for row in res:
+                df=df.append(row)
+        if not message or random.random() < 0.25:
+            message = '{0} {1} {2}...'.format(random.choice(verb),
+                                              random.choice(adjective),
+                                              random.choice(noun))
+        self.update_state(state='PROGRESS',
+                          meta={'current': i, 'total': total,
+                                'status': message})
+        time.sleep(1)
+    df['index'] = list(range(len(df.index)))
+    df=df.set_index('index')
+    for i in range(len(df.index)):
                     t=list()
-                    for col in ["sub_bu",
-                            "analytics_template_name",
-                            "product_service_name",
-                            "analytics_section"]:
+                    for col in metatag_list:
                             t.append(      
-                            df.loc[i,col]=="")
+                            df.loc[i,col]==metatag_ref.loc[1,col])
                            
                     if all(t):    
-                        df.loc[i,'secondary_flag']="1"
+                        df.loc[i,'flag']="1"
                     else:    
-                        df.loc[i,'secondary_flag']="0"
-                
-                
-            df['Primary_Flag']=df.primary_flag
-            df['Secondary_Flag']=df.secondary_flag
-            top_row = df.loc[df['url'] == url]
-            df = pd.concat([top_row, df]).reset_index(drop = True)
-            try:
-                    if 'hpweb.1' in dict_metatag['hp_design_version']:
-                        df=df[col_order]
-                    else:
-                        df=df[col_order_1]
-            except:
-                    df=df[col_order]
-            df=df.drop(["redirected_url"],axis=1)
-            df=df.to_json(orient='index')
-        except Exception as error:
-            print('exception')
-            print(error)
-        #print(df)    
-   return metatag_ref,df
-@app.route('/')
-def home():
-    session.clear()
-    return render_template('home.html')
-@app.route('/join', methods=['GET','POST'])
+                        df.loc[i,'flag']="0"
+    df=df[col_list]
+    metatag_ref=metatag_ref.to_json(orient='index')
+    df=df.to_json(orient='index')
+    #if request.method == 'POST':
+        #name = request.form['name']
+        #age = request.form['age']
+    
+    
+        #cursor.execute(''' INSERT INTO info_table VALUES(%s,%s)''',(name,age))
+    #connection = mysql.connect()
+    #mysql.connection.commit()
+   # cursor.close()
+    id=int(str(time.time_ns())[10:])
 
-def my_form_post():
-    # text1 = request.form['url']
-    # word = request.args.get('url')
-  
-    session['url'] = request.json['url']
-    session['validation'] =request.json['val']
-    session['page']=request.json['page']
-    combine, df = do_something(session['url'])
-    result = {
-        "output": combine,
-        "output2": df
+    admin = metatag(id=id, result= df, ref= metatag_ref,  col_list=col_list_filter,validation =validation,page=page) 
+    db.session.add(admin) 
+    db.session.commit()
+    return {'current': 100, 'total': 100, 'status': col_list_filter,
+            'result': id,  'url': metatag_ref}
+
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'GET':
+        return render_template('home.html', email=session.get('email', ''))
+    email = request.form['email']
+    session['email'] = email
+
+    # send the email
+    email_data = {
+        'subject': 'Hello from Flask',
+        'to': email,
+        'body': 'This is a test email sent from a background Celery task.'
     }
-    #result = {str(key): value for key, value in result.items()}
-    session['data'] = json.dumps(result)
-    return jsonify(result=result)
+    if request.form['submit'] == 'Send':
+        # send right away
+        send_async_email.delay(email_data)
+        flash('Sending email to {0}'.format(email))
+    else:
+        # send in one minute
+        send_async_email.apply_async(args=[email_data], countdown=60)
+        flash('An email will be sent to {0} in one minute'.format(email))
 
-@app.route('/user', methods=['GET', 'POST'])
+    return redirect(url_for('index'))
+
+
+@app.route('/longtask', methods=['POST','GET'])
+def longtask():
+    url = request.form['url']
+    col_list =request.form['idList1']
+    validation =request.form['validation']
+    page =request.form['page']
+    task = long_task.apply_async(args=[url, col_list, validation, page])
+    return jsonify({}), 202, {'Location': url_for('taskstatus',
+                                                  task_id=task.id)}
+
+
+@app.route('/status/<task_id>')
+def taskstatus(task_id):
+    task = long_task.AsyncResult(task_id)
+    if task.state == 'PENDING':
+        response = {
+            'state': task.state,
+            'current': 0,
+            'total': 1,
+            'status': 'Pending...'
+        }
+    elif task.state != 'FAILURE':
+        response = {
+            'state': task.state,
+            'current': task.info.get('current', 0),
+            'total': task.info.get('total', 1),
+            'status': task.info.get('status', ''),
+            'url': task.info.get('url', '')
+        }
+        if 'result' in task.info:
+            response['result'] = task.info['result']
+    else:
+        # something went wrong in the background job
+        response = {
+            'state': task.state,
+            'current': 1,
+            'total': 1,
+            'status': str(task.info),  # this is the exception raised
+        }
+    return jsonify(response)
+
+@app.route('/user', methods=['GET' , 'POST'])
 def user():
     # with open('./data.json', 'r') as myfile:
     #         data = myfile.read()
     #return res
-    data = session.get('data')
-    return render_template("results.html", jsonfile= data, mimetype='application/json')
+    id = request.args.get('id')
+    res= metatag.query.filter_by(id=id).first()
+    #ref= metatag.query.filter_by(id=id).second()
+    combine=json.dumps(res.result)
+    df=json.dumps(res.ref)
+    validation=json.dumps(res.validation)
+    page=json.dumps(res.page)
+    filter =res.col_list
+    col_list = list(filter.split(","))
+    print (res)
+    data = {
+        "output": combine,
+        "output2": df,
+        "col_list":col_list,
+        "validation":validation,
+        "page":page
+    }
+    #return data
+    return render_template("results.html", jsonfile = data, mimetype="appication/json")
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,port=5003)
